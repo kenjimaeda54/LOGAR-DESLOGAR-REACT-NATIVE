@@ -1,121 +1,59 @@
-import React, { useState } from 'react';
-import {
-  StyleSheet,
-  View,
-  TextInput,
-  Text,
-  Button,
-  Keyboard
-}
-  from 'react-native';
-import firebase from './src/firebase/firebaseconection'
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { StyleSheet } from "react-native";
+import { Feather } from "@expo/vector-icons";
 
+
+
+import Registrar from './src/pages/Registrar';
+import Logado from './src/pages/Logado/index';
 
 console.disableYellowBox = true;
 
 
+
+
 export default function App() {
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [user, setUser] = useState('');
-
-
-
-  async function logar() {
-    await firebase.auth().signInWithEmailAndPassword(email,senha)
-      .then((value) => {
-        alert('Usuario logado com sucesso')
-        setUser(value.user.email)
-        
-
-      }).catch((error) => {
-
-        alert(`Aconteceu algo errado erro: ${error.code}`)
-        return;
-      })
-    setSenha('');
-    setEmail('');
-  }
-
-  async function deslogar() {
-    await firebase.auth().signOut();
-    setUser('');
-  }
-
-
-  return (
-    <View style={styles.container}>
-
-      <Text style={styles.text} >Email</Text>
-
-      <TextInput
-        placeholder="Seu email"
-        value={email}
-        onChangeText={(item) => setEmail(item)}
-        style={styles.textInput}
-      />
-
-      <Text style={styles.text}>Senha</Text>
-
-      <TextInput
-        placeholder="Sua senha"
-        value={senha}
-        //necessario o value.Caso não coloque sera impossivel,manipular
-        //valor que usuario colocou ou seja por exemplo apagar este estado
-        onChangeText={(item) => setSenha(item)}
-        style={styles.textInput}
-        keyboardType="numeric"
-      />
-
-      <Button
-        title="Logar"
-        onPress={logar}
-        style={styles.button}
-      />
-      <Text>{user}</Text>
-      {user.length > 0 ?
-        <Button
-          title="Deslogar"
-          onPress={deslogar}
-
-        />
-        :
-        <Text>Nenhum usuario logado</Text>
+   const Tab = createBottomTabNavigator();
+   const icons = {
+      Cadastrar: {
+         name: 'log-in',
+      },
+      Login: {
+         name: 'log-out',
       }
+   
+   }
+   
 
-    </View>
-  );
+   return (
+
+      <NavigationContainer>
+
+         <Tab.Navigator
+            screenOptions={({route}) => ({
+               tabBarIcon: ({ color, size }) => {
+
+                  const {name} = icons[route.name]
+
+                  return <Feather name={name} color={color} size={size} />
+               }
+            })}
+            tabBarOptions={{
+               style: { backgroundColor:'black' },
+               activeTintColor: '#ddd'
+            
+            }}
+
+         >
+
+            <Tab.Screen name="Cadastrar" component={Registrar} />
+            <Tab.Screen name="Login" component={Logado} />
+
+         </Tab.Navigator>
+
+      </NavigationContainer>
+   );
+
 }
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  textInput: {
-    borderColor: 'black',
-    borderRadius: 5,
-    backgroundColor: '#dddd',
-    color: 'black',
-    fontSize: 16,
-    marginBottom: 10,
-    marginTop: 30,
-    textAlign: 'center',
-    width: '90%',
-    height: 100,
-  },
-  text: {
-    color: 'black',
-    fontSize: 26,
-
-  },
-  button: {
-    color: 'black',
-    width: '90%',
-    height: 50,
-  }
-
-});
